@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.weidongjian.weigan.sunshine.DetailActivity" >
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_item_share"
+        android:showAsAction="always"
+        android:title="@string/action_share"
+        android:actionProviderClass="android.widget.ShareActionProvider"/>
+</menu>

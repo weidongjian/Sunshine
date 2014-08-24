@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sunshine</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="detail_name">DetailView</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="setting">Setting</string>
+    <string name="pref_sync">Set location zip code.</string>
+    <string name="pref_sync_summ">pref_sync_summ</string>
+    <string name="pref_syncConnectionType">Set metric</string>
+    <string name="pref_syncConnectionTypes_default">Celsius</string>
+    <string name="pref_location_key">Location</string>
+    <string name="action_share">share</string>
+    <array name="pref_syncConnectionTypes_entries">
+        <item>metric</item>
+        <item>imperial</item>
+    </array>
+
+</resources>
