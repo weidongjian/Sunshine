@@ -29,6 +29,9 @@
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.weidongjian.weigan.sunshine.main"/>
         </activity>
+        <provider
+            android:authorities="com.weidongjian.weigan.sunshine.Data"
+            android:name=".Data.WeatherProvider"/>
     </application>
 
 </manifest>

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.weidongjian.weigan.sunshine.Data.WeatherDbHelper;
+
 
 public class main extends Activity {
 
@@ -19,6 +21,7 @@ public class main extends Activity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+        WeatherDbHelper dbHelper = new WeatherDbHelper(this);
     }
 
     @Override
