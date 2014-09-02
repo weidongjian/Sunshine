@@ -55,7 +55,7 @@ public class DetailActivity extends Activity {
 //                NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_settings:
-                Intent intent = new Intent(this, SettingActivity.class);
+                Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
         }

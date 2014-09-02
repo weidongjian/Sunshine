@@ -5,15 +5,25 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="detail_name">DetailView</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Detail</string>
     <string name="setting">Setting</string>
     <string name="pref_sync">Set location zip code.</string>
     <string name="pref_sync_summ">pref_sync_summ</string>
     <string name="pref_syncConnectionType">Set metric</string>
     <string name="pref_syncConnectionTypes_default">Celsius</string>
-    <string name="pref_location_key">Location</string>
+    <string name="pref_location_label">Location</string>
+    <string name="pref_location_key">location</string>
+    <string name="pref_location_default">94043</string>
     <string name="action_share">share</string>
-    <array name="pref_syncConnectionTypes_entries">
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_units_key">Temperature Units</string>
+    <string name="pref_units_metric">metric</string>
+    <string name="pref_units_imperial">imperial</string>
+    <array name="pref_units_options">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </array>
+    <array name="pref_units_values">
         <item>metric</item>
         <item>imperial</item>
     </array>
