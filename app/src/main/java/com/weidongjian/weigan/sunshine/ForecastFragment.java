@@ -1,8 +1,13 @@
 package com.weidongjian.weigan.sunshine;
 
 import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -12,8 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+
+import com.weidongjian.weigan.sunshine.Data.WeatherContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,10 +36,37 @@ import java.util.List;
 /**
  * Created by Weigan on 2014/8/18.
  */
-public class ForecastFragment extends Fragment {
-    public   ArrayAdapter mForecastAdapter;
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    public SimpleCursorAdapter mForecastAdapter;
+    private static final int FORECAST_LOADER = 0;
+    private String mLocation;
+
+    private static final String[] FORECAST_COLUMNS = {WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
+            WeatherContract.WeatherEntry.COLUMN_DATETEXT,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.LocationEntry.COLUMN_SETTING};
+
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    public static final int COL_WEATHER_ID = 0;
+    public static final int COL_WEATHER_DATE = 1;
+    public static final int COL_WEATHER_DESC = 2;
+    public static final int COL_WEATHER_MAX_TEMP = 3;
+    public static final int COL_WEATHER_MIN_TEMP = 4;
+    public static final int COL_LOCATION_SETTING = 5;
+
     String[] result = new String[7];
-    public ForecastFragment() {}
+
+    public ForecastFragment() {
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,21 +80,60 @@ public class ForecastFragment extends Fragment {
         String[] fackData = new String[]{"afskaf", "faskfjlsa", "flasdjf ", "asldfj", "lsieofaj"};
         final List<String> data = new ArrayList<String>(Arrays.asList(fackData));
 
-        mForecastAdapter = new ArrayAdapter(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview,data);
+        mForecastAdapter = new SimpleCursorAdapter(getActivity(), R.layout.list_item_forecast, null,
+                new String[]{WeatherContract.WeatherEntry.COLUMN_DATETEXT,
+                        WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+                        WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+                        WeatherContract.WeatherEntry.COLUMN_MIN_TEMP},
+                new int[]{R.id.list_item_date_textview,
+                        R.id.list_item_forecast_textview,
+                        R.id.list_item_high_textview,
+                        R.id.list_item_low_textview},
+                0);
+
+        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                switch (columnIndex) {
+                    case COL_WEATHER_MAX_TEMP:
+                    case COL_WEATHER_MIN_TEMP:{
+                        boolean isMetric = Utility.isMetric(getActivity());
+                        ((TextView)view).setText(Utility.formatTemperature(cursor.getDouble(columnIndex), isMetric));
+                        return true;
+                    }
+                    case COL_WEATHER_DATE:{
+                        String dateString = cursor.getString(columnIndex);
+                        TextView dateView = (TextView) view;
+                        dateView.setText(Utility.formatDate(dateString));
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String forecast = (String) mForecastAdapter.getItem(position);
-//                Toast.makeText(getActivity(), forecast, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT, forecast);
-                startActivity(intent);
+                Cursor cursor = mForecastAdapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(DetailActivity.DATE_KEY, cursor.getString(COL_WEATHER_DATE));
+                    startActivity(intent);
+                }
             }
         });
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+            getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        }
     }
 
     @Override
@@ -74,94 +148,12 @@ public class ForecastFragment extends Fragment {
             String location = Utility.getPreferredLocation(getActivity());
 //            System.out.println("code is: " + code);
             if (!location.equals("") && location != null)
-                new FetchWeatherTask(getActivity(), mForecastAdapter).execute(location);
+//                new FetchWeatherTask(getActivity(), mForecastAdapter).execute(location);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-//    private class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
-//        private final String LOG_CAT = FetchWeatherTask.class.getSimpleName();
-//
-//        @Override
-//        protected String[] doInBackground(String... params) {
-//            // These two need to be declared outside the try/catch
-//// so that they can be closed in the finally block.
-//            String postalCode = params[0];
-//            HttpURLConnection urlConnection = null;
-//            BufferedReader reader = null;
-//
-//// Will contain the raw JSON response as a string.
-//            String forecastJsonStr = null;
-//
-//            try {
-//                // Construct the URL for the OpenWeatherMap query
-//                // Possible parameters are available at OWM's forecast API page, at
-//                // http://openweathermap.org/API#forecast
-//                URL url = new URL(uriBuilder(postalCode));
-//
-//                // Create the request to OpenWeatherMap, and open the connection
-//                urlConnection = (HttpURLConnection) url.openConnection();
-//                urlConnection.setRequestMethod("GET");
-//                urlConnection.connect();
-//
-//                // Read the input stream into a String
-//                InputStream inputStream = urlConnection.getInputStream();
-//                StringBuffer buffer = new StringBuffer();
-//                if (inputStream == null) {
-//                    // Nothing to do.
-//                    forecastJsonStr = null;
-//                }
-//                reader = new BufferedReader(new InputStreamReader(inputStream));
-//
-//                String line;
-//                while ((line = reader.readLine()) != null) {
-//                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-//                    // But it does make debugging a *lot* easier if you print out the completed
-//                    // buffer for debugging.
-//                    buffer.append(line + "\n");
-//                }
-//
-//                if (buffer.length() == 0) {
-//                    // Stream was empty.  No point in parsing.
-//                    return null;
-//                }
-//                forecastJsonStr = buffer.toString();
-//            } catch (IOException e) {
-//                Log.e(LOG_CAT, "Error ", e);
-//                // If the code didn't successfully get the weather data, there's no point in attempting
-//                // to parse it.
-//                return null;
-//            } finally{
-//                if (urlConnection != null) {
-//                    urlConnection.disconnect();
-//                }
-//                if (reader != null) {
-//                    try {
-//                        reader.close();
-//                    } catch (final IOException e) {
-//                        Log.e("PlaceholderFragment", "Error closing stream", e);
-//                    }
-//                }
-//            }
-//            try {
-//                result = getWeatherDataFromJson(forecastJsonStr, 7);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String[] strings) {
-////            for (int i = 0; i < 7; i++) {
-////                System.out.println(strings[i]);
-////            }
-//            mForecastAdapter.clear();
-//            mForecastAdapter.addAll(strings);
-////            mForecastAdapter.notifyDataSetChanged();
-//        }
-//    }
 
     private String uriBuilder(String code) {
         return "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + code + "&mode=json&units=metric&cnt=7";
@@ -170,7 +162,7 @@ public class ForecastFragment extends Fragment {
     /* The date/time conversion code is going to be moved outside the asynctask later,
  * so for convenience we're breaking it out into its own method now.
  */
-    private String getReadableDateString(long time){
+    private String getReadableDateString(long time) {
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
         Date date = new Date(time * 1000);
@@ -185,7 +177,7 @@ public class ForecastFragment extends Fragment {
         // For presentation, assume the user doesn't care about tenths of a degree.
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String unitType = sharedPreferences.getString(getString(R.string.pref_units_key), getString(R.string.pref_units_metric));
-        if (unitType.equals(getString(R.string.pref_units_imperial))){
+        if (unitType.equals(getString(R.string.pref_units_imperial))) {
             high = (high * 1.8) + 32;
             low = (low * 1.8) + 32;
         }
@@ -193,13 +185,13 @@ public class ForecastFragment extends Fragment {
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
-        return  roundedHigh + "/" + roundedLow;
+        return roundedHigh + "/" + roundedLow;
     }
 
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
-     *
+     * <p/>
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
@@ -219,7 +211,7 @@ public class ForecastFragment extends Fragment {
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
         String[] resultStrs = new String[numDays];
-        for(int i = 0; i < weatherArray.length(); i++) {
+        for (int i = 0; i < weatherArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
             String day;
             String description;
@@ -251,4 +243,23 @@ public class ForecastFragment extends Fragment {
         return resultStrs;
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String startDate = WeatherContract.getDbDateString(new Date());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATETEXT + " ASC";
+        mLocation = Utility.getPreferredLocation(getActivity());
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(mLocation, startDate);
+
+        return new CursorLoader(getActivity(), weatherForLocationUri, FORECAST_COLUMNS, null, null, sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mForecastAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mForecastAdapter.swapCursor(null);
+    }
 }
