@@ -18,8 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 import com.weidongjian.weigan.sunshine.Data.WeatherContract;
 
@@ -28,16 +26,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Weigan on 2014/8/18.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    public SimpleCursorAdapter mForecastAdapter;
+//    public SimpleCursorAdapter mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
     private static final int FORECAST_LOADER = 0;
     private String mLocation;
 
@@ -77,40 +73,42 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] fackData = new String[]{"afskaf", "faskfjlsa", "flasdjf ", "asldfj", "lsieofaj"};
-        final List<String> data = new ArrayList<String>(Arrays.asList(fackData));
+//        String[] fackData = new String[]{"afskaf", "faskfjlsa", "flasdjf ", "asldfj", "lsieofaj"};
+//        final List<String> data = new ArrayList<String>(Arrays.asList(fackData));
 
-        mForecastAdapter = new SimpleCursorAdapter(getActivity(), R.layout.list_item_forecast, null,
-                new String[]{WeatherContract.WeatherEntry.COLUMN_DATETEXT,
-                        WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
-                        WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-                        WeatherContract.WeatherEntry.COLUMN_MIN_TEMP},
-                new int[]{R.id.list_item_date_textview,
-                        R.id.list_item_forecast_textview,
-                        R.id.list_item_high_textview,
-                        R.id.list_item_low_textview},
-                0);
+//        mForecastAdapter = new SimpleCursorAdapter(getActivity(), R.layout.list_item_forecast, null,
+//                new String[]{WeatherContract.WeatherEntry.COLUMN_DATETEXT,
+//                        WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+//                        WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+//                        WeatherContract.WeatherEntry.COLUMN_MIN_TEMP},
+//                new int[]{R.id.list_item_date_textview,
+//                        R.id.list_item_forecast_textview,
+//                        R.id.list_item_high_textview,
+//                        R.id.list_item_low_textview},
+//                0);
 
-        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                switch (columnIndex) {
-                    case COL_WEATHER_MAX_TEMP:
-                    case COL_WEATHER_MIN_TEMP:{
-                        boolean isMetric = Utility.isMetric(getActivity());
-                        ((TextView)view).setText(Utility.formatTemperature(cursor.getDouble(columnIndex), isMetric));
-                        return true;
-                    }
-                    case COL_WEATHER_DATE:{
-                        String dateString = cursor.getString(columnIndex);
-                        TextView dateView = (TextView) view;
-                        dateView.setText(Utility.formatDate(dateString));
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+        mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+
+//        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+//            @Override
+//            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+//                switch (columnIndex) {
+//                    case COL_WEATHER_MAX_TEMP:
+//                    case COL_WEATHER_MIN_TEMP:{
+//                        boolean isMetric = Utility.isMetric(getActivity());
+//                        ((TextView)view).setText(Utility.formatTemperature(cursor.getDouble(columnIndex), isMetric));
+//                        return true;
+//                    }
+//                    case COL_WEATHER_DATE:{
+//                        String dateString = cursor.getString(columnIndex);
+//                        TextView dateView = (TextView) view;
+//                        dateView.setText(Utility.formatDate(dateString));
+//                        return true;
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -136,6 +134,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    private void updateWeather() {
+        String location = Utility.getPreferredLocation(getActivity());
+        new FetchWeatherTask(getActivity()).execute(location);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecast_fragment, menu);
@@ -145,10 +148,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            String location = Utility.getPreferredLocation(getActivity());
-//            System.out.println("code is: " + code);
-            if (!location.equals("") && location != null)
-//                new FetchWeatherTask(getActivity(), mForecastAdapter).execute(location);
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
