@@ -6,22 +6,21 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.weidongjian.weigan.sunshine.Data.WeatherDbHelper;
 
-
-public class main extends Activity {
+public class main extends Activity implements ForecastFragment.Callback {
+    private boolean mTwoPane = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        System.out.println("onCreate mainActivity");
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
-                    .commit();
-        }
-        WeatherDbHelper dbHelper = new WeatherDbHelper(this);
+        if (findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getFragmentManager().beginTransaction().replace(R.id.weather_detail_container, new DetailFragment()).commit();
+            }
+        }else
+            mTwoPane = false;
     }
 
     @Override
@@ -43,5 +42,21 @@ public class main extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(String date) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putString(DetailActivity.DATE_KEY, date);
+
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+            getFragmentManager().beginTransaction().replace(R.id.weather_detail_container, detailFragment).commit();
+        }else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                            .putExtra(DetailActivity.DATE_KEY, date);
+                    startActivity(intent);
+        }
     }
 }

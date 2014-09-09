@@ -19,6 +19,7 @@
     <string name="pref_units_key">Temperature Units</string>
     <string name="pref_units_metric">metric</string>
     <string name="pref_units_imperial">imperial</string>
+
     <array name="pref_units_options">
         <item>Metric</item>
         <item>Imperial</item>
@@ -27,23 +28,15 @@
         <item>metric</item>
         <item>imperial</item>
     </array>
+
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-<string name="format_full_friendly_date">
-    <xliff:g id="day_of_week">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g>
-</string>
-    <string name="formatTemperature">
-        <xliff:g id="temp">%1.0f</xliff:g>\u00B0
-    </string>
+    <string name="format_full_friendly_date"><xliff:g id="day_of_week">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
     <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
-<string name="format_wind_mph">
-    Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g>
-</string>
-<string name="format_wind_kmh">
-    Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g>
-</string>
-
+    <string name="format_wind_mph">    Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g></string>
+    <string name="format_wind_kmh">    Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g></string>
     <string name="format_pressure">Pressure: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
     <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
+    <string name="title_activity_temp">temp</string>
 
 </resources>
