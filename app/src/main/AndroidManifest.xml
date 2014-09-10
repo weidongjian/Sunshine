@@ -48,6 +48,8 @@
             android:name=".Data.WeatherProvider"
             android:authorities="com.weidongjian.weigan.sunshine.Data"
             android:exported="false"/>
+        <service android:name=".service.SunshineService"/>
+        <receiver android:name=".service.SunshineService$AlarmReceiver" android:enabled="true"/>
     </application>
 
 </manifest>
