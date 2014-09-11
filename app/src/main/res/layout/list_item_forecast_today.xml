@@ -50,6 +50,15 @@
         android:orientation="vertical"
         android:gravity="center_horizontal|bottom">
 
+        <TextView
+            android:id="@+id/list_item_city_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:layout_gravity="center_horizontal"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/white" />
+
         <ImageView
             android:id="@+id/list_item_icon"
             android:layout_width="wrap_content"

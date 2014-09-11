@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
@@ -68,6 +69,8 @@ public class SunshineService extends IntentService {
 //        }
 
         String locationQuery = Utility.getPreferredLocation(this);
+//        String locationQuery = Utility.getSelectedLocation(this);
+        System.out.println("locationQuery" + locationQuery);
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -87,7 +90,7 @@ public class SunshineService extends IntentService {
             // http://openweathermap.org/API#forecast
             final String FORECAST_BASE_URL =
                     "http://api.openweathermap.org/data/2.5/forecast/daily?";
-            final String QUERY_PARAM = "q";
+            final String QUERY_PARAM = "id";
             final String FORMAT_PARAM = "mode";
             final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
@@ -312,7 +315,12 @@ public class SunshineService extends IntentService {
             cVVector.toArray(cvArray);
             int rowsInserted =  this.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
             Log.v(LOG_TAG, "inserted " + rowsInserted + " rows of weather data");
-
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -1);
+            String yesterdayDate = WeatherContract.getDbDateString(cal.getTime());
+            getContentResolver().delete(WeatherContract.WeatherEntry.CONTENT_URI,
+                    WeatherContract.WeatherEntry.COLUMN_DATETEXT + "<= ?",
+                    new String[]{yesterdayDate});
             }
         }
 
@@ -364,12 +372,16 @@ public class SunshineService extends IntentService {
         //checking the last update and notify if it' the first of the day
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String lastNotificationKey = context.getString(R.string.pref_last_notification);
+        String displayNotificationsKey = context.getString(R.string.pref_enable_notifications_key);
+        boolean displayNotifications = prefs.getBoolean(displayNotificationsKey,
+                Boolean.parseBoolean(context.getString(R.string.pref_enable_notifications_default)));
+
         long lastSync = prefs.getLong(lastNotificationKey, 0);
 
 //        if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS)
-        if (true)
+        if (displayNotifications)
         {
-            System.out.println("call the noti meathed");
+//            System.out.println("call the noti meathed");
             // Last sync was more than 1 day ago, let's send a notification with the weather.
             String locationQuery = Utility.getPreferredLocation(context);
 

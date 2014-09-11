@@ -2,12 +2,15 @@ package com.weidongjian.weigan.sunshine;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.weidongjian.weigan.sunshine.Data.WeatherContract;
 
 /**
  * Created by Weigan on 2014/9/5.
@@ -54,8 +57,15 @@ public class ForecastAdapter extends CursorAdapter {
         // Read weather icon ID from cursor
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_ID);
         // Use placeholder image for now
-        if (viewType == VIEW_LAYOUT_TODAY)
+        if (viewType == VIEW_LAYOUT_TODAY) {
             viewHolder.iconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+            Uri uri = WeatherContract.LocationEntry.CONTENT_URI;
+            Cursor cursor1 = context.getContentResolver().query(uri, null, WeatherContract.LocationEntry.COLUMN_SETTING  + "= ?",
+                    new String[]{Utility.getPreferredLocation(context)}, null);
+            cursor1.moveToFirst();
+            String location = cursor1.getString(cursor1.getColumnIndex(WeatherContract.LocationEntry.COLUMN_CITY));
+            ((TextView)view.findViewById(R.id.list_item_city_name)).setText(location);
+        }
         else
             viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));
 
