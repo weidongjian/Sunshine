@@ -52,6 +52,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (savedInstanceState != null) {
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
+//        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 //        Intent intent = getActivity().getIntent();
         Bundle argement = getArguments();
         if (argement != null && argement.containsKey(DetailActivity.DATE_KEY))
@@ -119,7 +120,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-//                NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_settings:
                 Intent intent = new Intent(getActivity(), SettingsActivity.class);

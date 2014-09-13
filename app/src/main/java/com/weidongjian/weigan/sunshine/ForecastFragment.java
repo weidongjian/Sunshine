@@ -38,6 +38,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int mPosition;
     ListView listView;
 
+    private static final String[] TODAY_WEATHER_PROJECTION = new String[] {
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC
+    };
 
     private static final String[] FORECAST_COLUMNS = {WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
             WeatherContract.WeatherEntry.COLUMN_DATETEXT,
@@ -109,6 +114,16 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onResume();
         if (mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        }else {
+            checkWeatherUpdate();
+        }
+    }
+
+    private void checkWeatherUpdate() {
+        Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(mLocation, WeatherContract.getDbDateString(new Date()));
+        Cursor cursor = getActivity().getContentResolver().query(uri, TODAY_WEATHER_PROJECTION, null, null, null);
+        if (!cursor.moveToFirst()) {
+            updateWeather();
         }
     }
 
@@ -126,7 +141,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() +
-        2 * 1000, pendingIntent);
+        1000, pendingIntent);
 //        System.out.println("alarmManager start");
     }
 

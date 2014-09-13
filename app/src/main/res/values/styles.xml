@@ -3,6 +3,7 @@
     <style name="AppTheme"
         parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="android:itemBackground">@drawable/today_touch_selector</item>
     </style>
 
     <!-- ActionBar styles -->
