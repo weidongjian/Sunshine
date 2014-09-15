@@ -107,6 +107,12 @@
                 android:layout_marginTop="4dp"
                 android:layout_width="match_parent"
                 android:textAppearance="?android:textAppearanceLarge" />
+            <com.weidongjian.weigan.sunshine.service.MyDireactionView
+                android:id="@+id/direction_view"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="150dp" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

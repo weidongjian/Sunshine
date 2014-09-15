@@ -20,6 +20,7 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 import com.weidongjian.weigan.sunshine.Data.WeatherContract;
+import com.weidongjian.weigan.sunshine.service.MyDireactionView;
 
 /**
  * Created by Weigan on 2014/9/7.
@@ -44,6 +45,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mHumidityView;
     private TextView mWindView;
     private TextView mPressureView;
+    private MyDireactionView mDirectionView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mHumidityView = (TextView)rootView.findViewById(R.id.detail_humidity_textview);
         mWindView = (TextView)rootView.findViewById(R.id.detail_wind_textview);
         mPressureView = (TextView)rootView.findViewById(R.id.detail_pressure_textview);
+        mDirectionView = (MyDireactionView) rootView.findViewById(R.id.direction_view);
 
         return rootView;
     }
@@ -207,6 +210,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 dateText, weatherDescription, high, low);
 
         Log.v(LOG_TAG, "Forecast String: " + mForecastStr);
+
+        mDirectionView.updateDirection(windDirStr);
     }
 
     @Override
